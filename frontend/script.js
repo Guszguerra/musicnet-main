@@ -3,7 +3,7 @@
    Comunicação com a API em http://localhost:3001/api
 ================================================================ */
 
-const API = 'http://localhost:3001/api';
+const API = (window.MN_CONFIG && window.MN_CONFIG.API) || 'http://localhost:3001/api';
 const COLOR_PRESETS = ['#1DB954','#e040fb','#ff6d00','#00bcd4','#f4c430','#ff4d6d','#4fc3f7','#a5d6a7'];
 
 let currentUser   = null;
@@ -167,7 +167,7 @@ function buildPostCard(post) {
         <i class="fa-regular fa-comment"></i>
         <span id="comment-count-${post.id}">${post.commentsCount || 0}</span>
       </button>
-      <button class="btn-action ${post.isReposted ? 'reposted' : ''}" id="repost-btn-${post.id}" onclick="toggleRepost(${post.id})">
+      <button class="btn-action" id="repost-btn-${post.id}" onclick="toggleRepost(${post.id})">
         <i class="fa-solid fa-retweet"></i>
         <span id="repost-count-${post.id}">${post.reposts || 0}</span>
       </button>
@@ -279,11 +279,9 @@ async function toggleLike(postId) {
 async function toggleRepost(postId) {
   const r = await apiFetch(`/posts/${postId}/repost`, 'POST');
   if (!r.ok) return;
-  const { reposted, total } = await r.json();
+  const { reposted } = await r.json();
   const btn = document.getElementById(`repost-btn-${postId}`);
-  const cnt = document.getElementById(`repost-count-${postId}`);
   if (btn) btn.classList.toggle('reposted', reposted);
-  if (cnt) cnt.textContent = total;
   toast(reposted ? 'Repostado!' : 'Repost removido.');
 }
 
