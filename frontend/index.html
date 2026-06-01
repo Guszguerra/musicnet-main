@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicNet — Sua Rede Social de Música</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ── Tela de Autenticação ────────────────────────────────── -->
+<div id="auth-screen" class="auth-screen">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <i class="fa-solid fa-music"></i>
+            <span>MusicNet</span>
+        </div>
+        <p class="auth-tagline">Compartilhe o que você está ouvindo agora.</p>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button>
+            <button class="auth-tab" onclick="switchAuthTab('register')">Criar conta</button>
+        </div>
+
+        <!-- Login -->
+        <div id="login-form" class="auth-form">
+            <input type="email" id="login-email" placeholder="E-mail" autocomplete="email">
+            <input type="password" id="login-password" placeholder="Senha" autocomplete="current-password">
+            <button class="btn-primary" onclick="doLogin()">Entrar</button>
+            <p class="auth-hint">Demo: <code>user@musicnet.com</code> / <code>musicnet123</code></p>
+        </div>
+
+        <!-- Register -->
+        <div id="register-form" class="auth-form hidden">
+            <input type="text"  id="reg-name"     placeholder="Nome completo">
+            <input type="text"  id="reg-handle"   placeholder="Handle (@seunome)">
+            <input type="email" id="reg-email"    placeholder="E-mail" autocomplete="email">
+            <input type="password" id="reg-password" placeholder="Senha (mín. 6 caracteres)" autocomplete="new-password">
+            <button class="btn-primary" onclick="doRegister()">Criar conta</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── App Principal ───────────────────────────────────────── -->
+<div id="app" class="hidden">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <h1 class="logo"><i class="fa-solid fa-music"></i> MusicNet</h1>
+            <ul class="nav-links">
+                <li><a href="#" onclick="switchTab('home')"    id="tab-home"    class="active"><i class="fa-solid fa-house"></i> Feed</a></li>
+                <li><a href="#" onclick="switchTab('search')"  id="tab-search"><i class="fa-solid fa-magnifying-glass"></i> Buscar</a></li>
+                <li><a href="#" onclick="switchTab('profile')" id="tab-profile"><i class="fa-solid fa-user"></i> Perfil</a></li>
+                <li>
+                    <button class="btn-icon-nav" onclick="toggleColorDropdown(event)" title="Tema">
+                        <span class="color-swatch" id="colorSwatch"></span>
+                        <i class="fa-solid fa-palette"></i>
+                    </button>
+                    <div class="color-dropdown hidden" id="colorDropdown">
+                        <p>Cor do tema</p>
+                        <div class="color-presets" id="colorPresets"></div>
+                        <div class="color-custom-row">
+                            <label>Personalizada</label>
+                            <input type="color" id="custom-color-input" value="#1DB954">
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <button class="btn-icon-nav" onclick="doLogout()" title="Sair">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        <!-- ── Feed ──────────────────────────────────────────── -->
+        <section id="home-section" class="tab-content active">
+            <div class="create-post" id="create-post-box">
+                <img src="" alt="Avatar" class="avatar" id="current-user-avatar">
+                <div class="post-form">
+                    <textarea id="post-caption" placeholder="O que você está ouvindo agora?"></textarea>
+                    <div class="music-search-row">
+                        <input type="text" id="music-search-input" placeholder="Buscar música ou artista..." autocomplete="off">
+                        <button class="btn-search-music" onclick="searchMusic()">
+                            <i class="fa-solid fa-magnifying-glass"></i> Buscar
+                        </button>
+                    </div>
+                    <div class="music-results-dropdown hidden" id="music-results"></div>
+                    <div class="music-preview-card hidden" id="music-preview-card">
+                        <img src="" class="music-preview-thumb" id="preview-thumb" alt="Capa">
+                        <div class="music-preview-info">
+                            <strong id="preview-track-name"></strong>
+                            <span id="preview-artist-name"></span>
+                        </div>
+                        <button class="btn-clear-music" onclick="clearSelectedMusic()" title="Remover música">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <button class="btn-post" id="btn-post" onclick="submitPost()" disabled>
+                        <i class="fa-solid fa-paper-plane"></i> Publicar
+                    </button>
+                </div>
+            </div>
+
+            <div id="feed-container">
+                <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>
+            </div>
+        </section>
+
+        <!-- ── Busca de Usuários ──────────────────────────────── -->
+        <section id="search-section" class="tab-content hidden">
+            <div class="search-page">
+                <h2>Buscar usuários</h2>
+                <div class="search-user-row">
+                    <input type="text" id="search-handle-input" placeholder="@handle ou nome..." onkeydown="if(event.key==='Enter') searchUser()">
+                    <button class="btn-primary" onclick="searchUser()"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                </div>
+                <div id="search-result"></div>
+            </div>
+        </section>
+
+        <!-- ── Perfil ─────────────────────────────────────────── -->
+        <section id="profile-section" class="tab-content hidden">
+            <div class="profile-header" id="profile-header">
+                <img src="" alt="Avatar Perfil" class="profile-avatar" id="profile-avatar">
+                <div class="profile-info">
+                    <h2 id="profile-name"></h2>
+                    <p class="handle" id="profile-handle"></p>
+                    <p class="bio" id="profile-bio"></p>
+                    <div class="profile-stats">
+                        <span><strong id="stat-posts">0</strong> Posts</span>
+                        <span><strong id="stat-followers">0</strong> Seguidores</span>
+                        <span><strong id="stat-following">0</strong> Seguindo</span>
+                    </div>
+                </div>
+            </div>
+            <div id="profile-feed">
+                <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- ── Player de áudio fixo ───────────────────────────────── -->
+<div class="audio-player hidden" id="audio-player">
+    <img src="" id="player-art" alt="Capa">
+    <div class="player-info">
+        <strong id="player-song"></strong>
+        <span id="player-time">0:00 / 0:00</span>
+    </div>
+    <div class="player-controls">
+        <button onclick="togglePlay()" id="btn-play"><i class="fa-solid fa-play"></i></button>
+        <input type="range" id="progress-bar" value="0" min="0" max="100" step="0.1" oninput="seekAudio(this.value)">
+        <button onclick="closePlayer()" title="Fechar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <audio id="audio-tag"></audio>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────── -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # ─── BANCO DE DADOS (MySQL) ──────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: musicnet_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: sua_senha_aqui
+      MYSQL_DATABASE: musicnet
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - mysql_data:/var/lib/mysql
+
+  # ─── APLICAÇÃO (Node.js) ─────────────────────────────────────────
+  app:
+    build: .
+    container_name: musicnet_app
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - USE_MEMORY_DB=false
+      - DB_HOST=kodama.proxy.rlwy.net
+      - DB_PORT=31611
+      - DB_USER=root
+      - DB_PASSWORD=jnDPbPOgPKGDgwwuCABSbddCkbqYiEkj
+      - DB_NAME=railway
+      - SESSION_SECRET=uma_chave_secreta_e_longa_aqui
+      - PORT=3001
+      - NODE_ENV=development
+
+volumes:
+  mysql_data:
